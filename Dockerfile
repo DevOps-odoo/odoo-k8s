@@ -1,12 +1,15 @@
-FROM odoo:14
-USER odoo
-RUN pip3 install dropbox
-# Installation des dépendances personnalisées
+FROM openjdk:8-alpine
 
-RUN apt-get update
-RUN pip3 install --upgrade 
-# Définition du dossier de travail
-FROM odoo:14.0
-LABEL MAINTAINER assc <x@gmail.com>
-USER root
+# Required for starting application up.
+RUN apk update && apk add /bin/sh
+
+RUN mkdir -p /opt/app
+ENV PROJECT_HOME /opt/app
+
+COPY target/spring-boot-mongo-1.0.jar $PROJECT_HOME/spring-boot-mongo.jar
+
+WORKDIR $PROJECT_HOME
+EXPOSE 8080
+CMD ["java" ,"-jar","./spring-boot-mongo.jar"]AINER assc <x@gmail.com>
+
 
