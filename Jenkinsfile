@@ -2,7 +2,7 @@ node {
               
     stage('Git clone') {
          
-        git credentialsId: 'jenkins', url: 'git@gitlab.com:boubaker.am/dotnet_angular.git'
+        git credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
          
     }
        
