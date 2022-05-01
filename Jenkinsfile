@@ -2,7 +2,7 @@ node {
               
     stage('Git clone') {
          
-        git credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
+        git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
          
     }
        
