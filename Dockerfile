@@ -40,7 +40,7 @@ WORKDIR /opt/odoo
 USER odoo
 RUN git clone --branch=main --depth=1 https://github.com/ingamine/odoo-k8s.git
 USER root
-RUN pip3 install --no-cache-dir -r odoo/requir.txt
+RUN pip3 install --no-cache-dir -r ./requirement.txt
 
 # Install debugpy
 RUN pip3 install -U debugpy
