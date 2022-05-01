@@ -1,63 +1,88 @@
-FROM ubuntu:18.04
+FROM debian:bullseye-slim
+MAINTAINER Odoo S.A. <info@odoo.com>
 
-# Install System dependencies
-RUN set -x; \
-    apt-get update \
-    && apt-get install -y curl \
-    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb \
-    && apt-get install -y --no-install-recommends \
-    ./wkhtmltox.deb \
-    postgresql-client \
-    build-essential \
-    python3 \
-    python3-setuptools \
-    python3-pip \
-    python3-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libldap2-dev \
-    libssl-dev \
-    libsasl2-dev \
-    nano \
-    git \
-    openssh-client \
-    && apt purge -y libssl-dev \
-    && apt install -y -f libssl1.0-dev \
-    && apt install -y --no-install-recommends node-less \
-    nodejs-dev \
-    node-gyp \
-    npm \
+SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
+
+# Generate locale C.UTF-8 for postgres and general locale data
+ENV LANG C.UTF-8
+
+# Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        dirmngr \
+        fonts-noto-cjk \
+        gnupg \
+        libssl-dev \
+        node-less \
+        npm \
+        python3-num2words \
+        python3-pdfminer \
+        python3-pip \
+        python3-phonenumbers \
+        python3-pyldap \
+        python3-qrcode \
+        python3-renderpm \
+        python3-setuptools \
+        python3-slugify \
+        python3-vobject \
+        python3-watchdog \
+        python3-xlrd \
+        python3-xlwt \
+        xz-utils \
+    && curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.buster_amd64.deb \
+    && echo 'ea8277df4297afc507c61122f3c349af142f31e5 wkhtmltox.deb' | sha1sum -c - \
+    && apt-get install -y --no-install-recommends ./wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
-# Create odoo user and directories and set permissions
-RUN useradd -ms /bin/bash odoo \
-    && mkdir /etc/odoo /opt/odoo /opt/odoo/scripts \
-    && chown -R odoo:odoo /etc/odoo /opt/odoo
+# install latest postgresql-client
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /etc/apt/sources.list.d/pgdg.list \
+    && GNUPGHOME="$(mktemp -d)" \
+    && export GNUPGHOME \
+    && repokey='B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8' \
+    && gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "${repokey}" \
+    && gpg --batch --armor --export "${repokey}" > /etc/apt/trusted.gpg.d/pgdg.gpg.asc \
+    && gpgconf --kill all \
+    && rm -rf "$GNUPGHOME" \
+    && apt-get update  \
+    && apt-get install --no-install-recommends -y postgresql-client \
+    && rm -f /etc/apt/sources.list.d/pgdg.list \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/odoo
+# Install rtlcss (on Debian buster)
+RUN npm install -g rtlcss
 
-# Install Odoo and dependencies from latest source
-USER odoo
-RUN git clone --branch=main --depth=1 https://github.com/ingamine/odoo-k8s.git
-USER root
-#RUN pip3 install --no-cache-dir -r odoo/requirement.txt
+# Install Odoo
+ENV ODOO_VERSION 15.0
+ARG ODOO_RELEASE=20220425
+ARG ODOO_SHA=20dcece1bc2e25cf3950a419074b127dd7ef8c0f
+RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
+    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
+    && apt-get update \
+    && apt-get -y install --no-install-recommends ./odoo.deb \
+    && rm -rf /var/lib/apt/lists/* odoo.deb
 
-# Install debugpy
-RUN pip3 install -U debugpy
+# Copy entrypoint script and Odoo configuration file
+COPY ./entrypoint.sh /
+COPY ./odoo.conf /etc/odoo/
 
-# Define runtime configuration
-COPY src/entrypoint.sh /opt/odoo
-COPY src/odoo.conf /etc/odoo
-RUN chown odoo:odoo /etc/odoo/odoo.conf
+# Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
+RUN chown odoo /etc/odoo/odoo.conf \
+    && mkdir -p /mnt/extra-addons \
+    && chown -R odoo /mnt/extra-addons
+VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
-USER odoo
+# Expose Odoo services
+EXPOSE 8069 8071 8072
 
-RUN mkdir /opt/odoo/data /opt/odoo/custom_addons \
-    /opt/odoo/.vscode /home/odoo/.vscode-server
-
+# Set the default config file
 ENV ODOO_RC /etc/odoo/odoo.conf
-ENV PATH="/opt/odoo/scripts:${PATH}"
 
-EXPOSE 8069 8071 8072 3000
-ENTRYPOINT ["/opt/odoo/entrypoint.sh"]
+COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
+
+# Set default user when running the container
+USER odoo
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]
