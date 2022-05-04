@@ -1,6 +1,6 @@
 ---
-apiVersion: v1
 kind: Namespace
+apiVersion: v1
 metadata:
   name: odoo
   labels:
@@ -29,11 +29,12 @@ metadata:
   labels:
     app: odoo-shop
 spec:
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: odoo-shop
+     #version: v1
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -47,18 +48,19 @@ spec:
         - name: POSTGRES_USER
           value: odoo
         - name: POSTGRES_PASSWORD
-          value: odoo
+          value: password
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
         ports:
         - containerPort: 5432
           name: odoo-db
         volumeMounts:
-          - name: odoo-db-pvc
+        - name: odoo-db-pvc
           mountPath: /var/lib/postgresql/data
       volumes:
       - name: odoo-db-pvc
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: odoo-db-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -83,11 +85,12 @@ metadata:
   labels:
     app: odoo-shop
 spec:
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: odoo-shop
+     #version: v1
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -95,15 +98,13 @@ spec:
         tier: frontend
     spec:
       containers:
-        - image: assc2022/odoo:10.0
+        - image: imech/odoo:NET-$BUILD_NUMBER
           name: odoo-shop
           env:
           - name: USER
             value: odoo
           - name: PASSWORD
-            value: odoo
-          - name: HOST
-            value: odoo-db
+            value: password
           securityContext:
             privileged: true
             runAsUser: 0
@@ -113,38 +114,61 @@ spec:
           volumeMounts:
           - name: odoo-pvc
             mountPath: /var/lib/odoo
-          - name: odoo-addons-space
-            mountPath: /mnt/extra-addons
       volumes:
       - name: odoo-pvc
-        emptyDir: {}
-      - name: odoo-addons-space
         persistentVolumeClaim:
-         claimName: odoo-addons-claim
-
+          claimName: odoo-pvc
 ---
-kind: PersistentVolume
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: odoo-addons
+  name: pv0001
   labels:
     type: local
 spec:
-  storageClassName: manual
-  capacity:
-    storage: 5Gi
   accessModes:
     - ReadWriteOnce
+  capacity:
+    storage: 5Gi
   hostPath:
-    path: "/mnt/extra-addons"
+    path: /tmp/pv0001/
 ---
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: odoo-addons-claim
-  namespace: odoo
+  name: pv0002
+  labels:
+    type: local
 spec:
-  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  hostPath:
+    path: /tmp/pv0002/
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-pvc
+  namespace: odoo
+  labels:
+    app: odoo-shop
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-db-pvc
+  namespace: odoo
+  labels:
+    app: odoo-shop
+spec:
   accessModes:
     - ReadWriteOnce
   resources:

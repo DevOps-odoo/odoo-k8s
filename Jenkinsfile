@@ -1,47 +1,32 @@
-pipeline {
-//      environment {
-//	registryCredential = 'assc2022'
-//          }
-
-	agent any
-
-pipeline {
-     environment {
-	registryCredential = 'assc2022'
-         }
-
-	agent any
-
-stages {
-  stage('checkout source') {
-             steps{
-                git url:'https://github.com/DevOps-odoo/odoo-k8s.git', branch:'main'
-             }
-  }
-  //    }
-
- stage('Build Docker Image'){
-        sh 'docker build -t assc2022/odoo:10.0 .'
+node {
+              
+    stage('Git clone') {
+         
+            git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
+       //   git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/official-images.git'
+         //generate pair key jenkins private github public 
     }
+       
+    stage('Docker Build') {
+        sh 'docker build -t imech/odoo:NET-$BUILD_NUMBER .' 
+        //sh 'docker build -t imech/odoo:latest .' 
+        }   
     
-    stage('Push Docker Image'){
-        withCredentials([string(credentialsId: 'DOKCER_HUB_PASSWORD', variable: 'DOKCER_HUB_PASSWORD')]) {
-          sh "docker login -u assc2020 -p ${DOKCER_HUB_PASSWORD}"
-        }
-        sh 'docker push dockerhandson/spring-boot-mongo'
-     }
-     
-     stage("Deploy To Kuberates Cluster"){
-       kubernetesDeploy(
-         configs: 'deploy-odoo.yaml', 
-         kubeconfigId: 'KUBERNATES_CONFIG',
-         enableConfigSubstitution: true
-        )
-     }
-	 
-	  /**
-      stage("Deploy To Kuberates Cluster"){
-        sh 'kubectl apply -f deploy-odoo.yaml'
-      } **/
-     
+
+    stage('Push') {
+         withDockerRegistry([ credentialsId: "dockerHUB", url: "" ]) {       
+         
+         sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
+           //sh 'docker push imech/odoo:latest'
+        // token from dockerhub
+    }
+
+    }
+    stage('Deploy to K8S Master') {
+       //admin.conf from k8s
+           kubernetesDeploy configs: 'odoo.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubernetes', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', 
+    serverUrl: 'https://']
+
+    }    
+           
 }
