@@ -9,6 +9,7 @@ node {
        
     stage('Docker Build') {
         sh 'docker build -t imech/odoo:NET-$BUILD_NUMBER .' 
+        //sh 'docker build -t imech/odoo:latest .' 
         }   
     
 
@@ -16,6 +17,7 @@ node {
          withDockerRegistry([ credentialsId: "dockerHUB", url: "" ]) {       
          
          sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
+           //sh 'docker push imech/odoo:latest'
         
     }
 
