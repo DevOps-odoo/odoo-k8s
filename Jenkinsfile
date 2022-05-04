@@ -4,7 +4,7 @@ node {
          
             git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
        //   git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/official-images.git'
-         
+         //generate pair key jenkins private github public 
     }
        
     stage('Docker Build') {
@@ -18,12 +18,12 @@ node {
          
          sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
            //sh 'docker push imech/odoo:latest'
-        
+        // token from dockerhub
     }
 
     }
     stage('Deploy to K8S Master') {
-       
+       //admin.conf from k8s
            kubernetesDeploy configs: 'odoo.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubernetes', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', 
     serverUrl: 'https://']
 
