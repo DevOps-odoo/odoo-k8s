@@ -8,16 +8,16 @@ node {
     }
        
     stage('Docker Build') {
-       sh 'docker build -t imech/odoo:NET-$BUILD_NUMBER .' 
-        // sh 'docker build -t imech/odoo:latest .' 
+       sh 'docker build -t imag/odoo:NET-$BUILD_NUMBER .' 
+        // sh 'docker build -t imag/odoo:latest .' 
         }   
     
 
     stage('Push') {
          withDockerRegistry([ credentialsId: "dockerHUB", url: "" ]) {       
          
-         sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
-        // sh 'docker push imech/odoo:latest'
+         sh 'docker push imag/odoo:NET-$BUILD_NUMBER'
+        // sh 'docker push imag/odoo:latest'
         // token from dockerhub
     }
 
