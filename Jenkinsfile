@@ -1,4 +1,7 @@
- pipeline {
+ node {
+
+
+pipeline {
 	agent any
 	
 	environment {
@@ -41,3 +44,4 @@ stages {
        //admin.conf from k8s
          kubernetesDeploy configs: 'deployodoo.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubernetes', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
    }
+ }
