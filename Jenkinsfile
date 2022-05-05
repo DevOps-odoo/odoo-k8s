@@ -2,7 +2,7 @@ node {
               
     stage('Git clone') {
          
-            git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/odoo-k8s.git'
+            git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:DevOps-odoo/odoo-k8s.git'
        //   git branch: 'main', credentialsId: 'jenkins', url: 'git@github.com:ingamine/official-images.git'
          //generate pair key jenkins private github public 
     }
