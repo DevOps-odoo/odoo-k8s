@@ -17,7 +17,7 @@ stages {
        
     stage('Docker Build') {
 		steps {
-			sh 'docker build -t assc2/imech:NET-$BUILD_NUMBER .' 
+			sh 'docker build -t assc2/imche:NET-$BUILD_NUMBER .' 
 			// sh 'docker build -t imech/odoo:latest .' 
 		}
 
@@ -27,7 +27,7 @@ stages {
     stage('Push') {
           steps {
 			sh 'ech $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin' 	
-			sh 'docker push assc2/imech:NET-$BUILD_NUMBER'
+			sh 'docker push assc2/imche:NET-$BUILD_NUMBER'
 			// sh 'docker push imech/odoo:latest'
 			// token from dockerhub
 		  
