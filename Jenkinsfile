@@ -38,10 +38,6 @@ stages {
 	}
 
     stage('Deploy to K8S Master') {
-       kubernetesDeploy(
-        configs: "deployodoo.yaml",
-        kubeconfigId: 'kubernetes',
-         enableConfigSubstitution : true
-	 )
+     kubernetesDeploy configs: 'deployodoo.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubernetes', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
     }    
 
