@@ -8,8 +8,8 @@ node {
     }
        
     stage('Docker Build') {
-        sh 'docker build -t imech/odoo:NET-$BUILD_NUMBER .' 
-        //sh 'docker build -t imech/odoo:latest .' 
+       // sh 'docker build -t imech/odoo:NET-$BUILD_NUMBER .' 
+        sh 'docker build -t imech/odoo:latest .' 
         }   
     
 
