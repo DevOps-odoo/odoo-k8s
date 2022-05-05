@@ -16,8 +16,8 @@ node {
     stage('Push') {
          withDockerRegistry([ credentialsId: "dockerHUB", url: "" ]) {       
          
-         sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
-           //sh 'docker push imech/odoo:latest'
+        // sh 'docker push imech/odoo:NET-$BUILD_NUMBER'
+           sh 'docker push imech/odoo:latest'
         // token from dockerhub
     }
 
