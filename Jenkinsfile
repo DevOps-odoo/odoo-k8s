@@ -38,6 +38,10 @@ stages {
 	}
 
     stage('Deploy to K8S Master') {
+	    
+      steps {  
+	      echo "L'étape actuelle est deployement"
+	      
      kubernetesDeploy configs: 'deployodoo.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubernetes', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
     }    
 
