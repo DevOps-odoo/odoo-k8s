@@ -15,7 +15,7 @@ spec:
   selector:
     app: odoo-shop
     tier: backend
-  type: LoadBalencer
+  type: LoadBalancer
   ports:
     - port: 5432
     - targetPort: 5432
@@ -72,7 +72,7 @@ spec:
   selector:
     app: odoo-shop
     tier: frontend
-  type: LoadBalencer
+  type: LoadBalancer
   ports:
     - port: 8069
     - targetPort: 8069
