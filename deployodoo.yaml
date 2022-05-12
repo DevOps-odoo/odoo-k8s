@@ -12,9 +12,6 @@ metadata:
   name: odoo-db
   namespace: odoo
 spec:
-  labels:
-    app: odoo-shop
-spec:
   selector:
     app: odoo-shop
     tier: backend
@@ -72,9 +69,6 @@ kind: Service
 metadata:
   name: odoo-shop
   namespace: odoo
-spec:
-  labels:
-    app: odoo-shop
 spec:
   selector:
     app: odoo-shop
