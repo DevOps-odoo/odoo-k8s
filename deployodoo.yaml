@@ -11,15 +11,20 @@ kind: Service
 metadata:
   name: odoo-db
   namespace: odoo
+spec:
   labels:
     app: odoo-shop
 spec:
-  ports:
-    - port: 5432
   selector:
     app: odoo-shop
     tier: backend
-  type: NodePort
+  type: LoadBalencer
+  ports:
+    - port: 5432
+    - targetPort: 5432
+  externalIPs:
+    - 192.168.1.169
+  
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,15 +72,19 @@ kind: Service
 metadata:
   name: odoo-shop
   namespace: odoo
+spec:
   labels:
     app: odoo-shop
 spec:
-  ports:
-    - port: 8069
   selector:
     app: odoo-shop
     tier: frontend
-  type: NodePort
+  type: LoadBalencer
+  ports:
+    - port: 8069
+    - targetPort: 8069
+  externalIPs:
+    - 192.168.1.169
 ---
 apiVersion: apps/v1
 kind: Deployment
