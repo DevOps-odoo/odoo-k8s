@@ -42,7 +42,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - image: postgres:9.6
+      - image: postgres:9.4
         name: odoo-db
         env:
         - name: POSTGRES_USER
