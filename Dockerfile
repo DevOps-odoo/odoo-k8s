@@ -1,5 +1,6 @@
 FROM odoo:13.0
 USER root
+USER odoo
 COPY ./entrypoint.sh /
 RUN ["chmod", "+x", "/entrypoint.sh"]
 
