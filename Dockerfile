@@ -53,6 +53,6 @@ ENV ODOO_RC /etc/odoo/odoo.conf
 
 # Set default user when running the container
 USER odoo
-
-ENTRYPOINT ["/entrypoint.sh"]
+USER root
+RUN ["chmod", "+x", "/entrypoint.sh"]
 CMD ["odoo"]
