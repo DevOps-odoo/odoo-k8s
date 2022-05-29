@@ -96,7 +96,7 @@ spec:
         tier: frontend
     spec:
       containers:
-        - image: assc2/odoo-docker:latest
+        - image: assc2/imech:NET-$BUILD_NUMBER
           name: odoo-shop
           env:
           - name: USER
