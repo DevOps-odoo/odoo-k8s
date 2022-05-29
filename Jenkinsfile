@@ -7,16 +7,16 @@ node {
     }
        
     stage('Docker Build') {
-     // sh 'docker build -t assc2/imech:NET-$BUILD_NUMBER .' 
-        sh 'docker build -t assc2/imech:NET-$BUILD_NUMBER .' 
+      sh 'docker build -t assc2/odoo-docker:latest .' 
+       // sh 'docker build -t assc2/imech:NET-$BUILD_NUMBER .' 
         }   
     
 
     stage('Push') {
            withDockerRegistry([ credentialsId: "dockerHUB", url: "" ]) {   
          
-      //  sh 'docker push assc2/imech:NET-$BUILD_NUMBER'
-         sh 'docker push assc2/imech:NET-$BUILD_NUMBER'
+       sh 'docker push assc2/odoo-docer:latest'
+         //sh 'docker push assc2/imech:NET-$BUILD_NUMBER'
         // token from dockerhub
     }
     }
